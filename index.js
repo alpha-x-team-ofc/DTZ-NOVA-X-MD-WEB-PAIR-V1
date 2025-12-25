@@ -3,7 +3,6 @@ const app = express();
 const path = require('path');
 const bodyParser = require("body-parser");
 const http = require('http');
-const WebSocket = require('ws');
 
 // Load environment variables
 require('dotenv').config();
@@ -16,13 +15,11 @@ const server = http.createServer(app);
 // Increase event listeners
 require('events').EventEmitter.defaultMaxListeners = 500;
 
-// Create temp directory if not exists
+// Create directories if not exist
 const fs = require('fs');
 if (!fs.existsSync('./temp')) {
     fs.mkdirSync('./temp', { recursive: true });
 }
-
-// Create logs directory if not exists
 if (!fs.existsSync('./logs')) {
     fs.mkdirSync('./logs', { recursive: true });
 }
@@ -32,6 +29,7 @@ const qrRouter = require('./qr');
 const pairRouter = require('./pair');
 
 // Setup WebSocket for QR
+const WebSocket = require('ws');
 const wss = qrRouter.ws(server);
 
 // Middleware
@@ -61,8 +59,23 @@ app.get('/health', (req, res) => {
         status: 'OK',
         timestamp: new Date().toISOString(),
         service: 'DTZ_NOVA_XMD Session Generator',
-        version: '2.0.0',
-        uptime: process.uptime()
+        version: '3.0.0',
+        baileys: 'baileys-dtz',
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+    });
+});
+
+// Status endpoint
+app.get('/status', (req, res) => {
+    const qr = require('./qr');
+    const activeSessions = Object.keys(require('./qr').activeSessions || {});
+    
+    res.json({
+        status: 'running',
+        sessions: activeSessions.length,
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -164,6 +177,7 @@ app.use((err, req, res, next) => {
                     text-align: left;
                     overflow: auto;
                     max-height: 200px;
+                    font-size: 12px;
                 }
             </style>
         </head>
@@ -188,44 +202,85 @@ server.on('error', (error) => {
     console.error('HTTP Server Error:', error);
 });
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n🛑 Received SIGINT. Shutting down gracefully...');
-    wss.close(() => {
-        console.log('✅ WebSocket server closed');
-        server.close(() => {
-            console.log('✅ HTTP server closed');
-            process.exit(0);
-        });
+// WebSocket server events
+wss.on('connection', (ws) => {
+    console.log('🔗 New WebSocket connection');
+    
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
     });
 });
 
-process.on('SIGTERM', () => {
-    console.log('\n🛑 Received SIGTERM. Shutting down gracefully...');
+// Graceful shutdown
+function gracefulShutdown(signal) {
+    console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
+    
+    // Close WebSocket connections
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.close(1000, 'Server shutting down');
+        }
+    });
+    
+    // Close WebSocket server
     wss.close(() => {
         console.log('✅ WebSocket server closed');
+        
+        // Close HTTP server
         server.close(() => {
             console.log('✅ HTTP server closed');
+            
+            // Cleanup temp directory
+            try {
+                const fs = require('fs');
+                const path = require('path');
+                const tempDir = path.join(__dirname, 'temp');
+                
+                if (fs.existsSync(tempDir)) {
+                    const files = fs.readdirSync(tempDir);
+                    for (const file of files) {
+                        const filePath = path.join(tempDir, file);
+                        if (fs.lstatSync(filePath).isDirectory()) {
+                            fs.rmSync(filePath, { recursive: true, force: true });
+                        }
+                    }
+                    console.log('🧹 Temp directory cleaned');
+                }
+            } catch (cleanupError) {
+                console.error('Cleanup error:', cleanupError);
+            }
+            
             process.exit(0);
         });
     });
-});
+    
+    // Force exit after 10 seconds
+    setTimeout(() => {
+        console.log('⚠️ Forcing shutdown...');
+        process.exit(1);
+    }, 10000);
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Start Server
 server.listen(PORT, () => {
     console.log(`
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║         🚀 DTZ_NOVA_XMD SESSION GENERATOR v2.0.0                ║
+║         🚀 DTZ_NOVA_XMD SESSION GENERATOR v3.0.0                ║
 ║                  by Dulina Nethmira                              ║
-║                Using @rexxhayanasi/elaina-baileys                ║
+║                     Using baileys-dtz                            ║
 ║                                                                  ║
-║     🌐 Server running on: http://localhost:${PORT}                  ║
-║     📡 WebSocket ready on: ws://localhost:${PORT}/qr-ws           ║
+║     📅 Started: ${new Date().toLocaleString()}                  ║
+║     🌐 Server:  http://localhost:${PORT}                        ║
+║     📡 WebSocket: ws://localhost:${PORT}/qr-ws                   ║
 ║                                                                  ║
 ║     📱 QR Code:    http://localhost:${PORT}/qr                    ║
 ║     🔢 Pair Code:  http://localhost:${PORT}/pair                  ║
 ║     ❤️  Health:    http://localhost:${PORT}/health                ║
+║     📊 Status:     http://localhost:${PORT}/status                ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
     `);

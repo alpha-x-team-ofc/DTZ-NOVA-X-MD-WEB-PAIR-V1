@@ -1,1 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTZ_NOVA_XMD - QR Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background: url('https://files.catbox.moe/fpyw9m.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Music control (hidden but functional) */
+        .music-control {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            opacity: 0.1;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .music-control:hover {
+            opacity: 0.5;
+        }
+
+        .music-toggle {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            margin-bottom: 30px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 60px;
+            color: #ff00ff;
+            text-shadow: 0 0 30px #ff00ff;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { text-shadow: 0 0 30px #ff00ff; }
+            to { text-shadow: 0 0 60px #ff00ff, 0 0 90px #ff00ff; }
+        }
+
+        .title {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff00ff, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #00ff00;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .qr-box {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.6);
+            backdrop-filter: blur(10px);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            animation: boxGlow 3s infinite alternate;
+        }
+
+        @keyframes boxGlow {
+            from { box-shadow: 0 0 40px rgba(255, 0, 255, 0.6); }
+            to { box-shadow: 0 0 50px rgba(0, 255, 0, 0.6); }
+        }
+
+        .qr-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 0, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px;
+            border: 5px solid #00ff00;
+            border-radius: 15px;
+            padding: 10px;
+            background: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .loading-qr {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #ff00ff;
+            font-size: 18px;
+        }
+
+        .qr-message {
+            color: white;
+            margin: 15px 0;
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .qr-message strong {
+            color: #00ff00;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-label {
+            color: #ff00ff;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #00ff00;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ff00);
+            border-radius: 8px;
+            animation: progress 30s linear;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .timer {
+            color: #ffff00;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+
+        .instructions {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border-radius: 15px;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .reload-btn {
+            background: linear-gradient(45deg, #ff00ff, #ff5500);
+            color: white;
+        }
+
+        .reload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .home-btn {
+            background: linear-gradient(45deg, #00ff00, #0088ff);
+            color: white;
+        }
+
+        .home-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: white;
+            text-align: center;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: #ff00ff;
+            text-decoration: none;
+        }
+
+        .expired-message {
+            display: none;
+            color: #ff5555;
+            font-size: 18px;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: statusPulse 2s infinite;
+        }
+
+        .status-active {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background Music (Hidden) -->
+    <div class="music-control">
+        <button class="music-toggle" id="musicToggle" title="Music Control">
+            <i class="fas fa-music"></i>
+        </button>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="https://files.catbox.moe/r674ot.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="title">DTZ_NOVA_XMD</h1>
+            <p class="subtitle">QR Code Session by Dulina Nethmira</p>
+        </div>
+
+        <div class="qr-box">
+            <div class="qr-code" id="qrCodeContainer">
+                <div class="loading-qr">
+                    <i class="fas fa-spinner fa-spin"></i> Loading QR Code...
+                </div>
+            </div>
+
+            <div class="qr-message">
+                <span class="status-indicator status-active"></span>
+                <strong>SCAN WITH WHATSAPP</strong>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <i class="fas fa-clock"></i> QR Code expires in:
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="timer" id="timer">30s</div>
+            </div>
+
+            <div class="expired-message" id="expiredMessage">
+                <i class="fas fa-exclamation-triangle"></i> QR Code Expired!
+            </div>
+
+            <div class="instructions">
+                <p><i class="fas fa-mobile-alt"></i> <strong>How to scan:</strong></p>
+                <p>1. Open WhatsApp on your phone</p>
+                <p>2. Tap Menu → Linked Devices → Link a Device</p>
+                <p>3. Scan the QR code above</p>
+                <p>4. Wait for session to be created</p>
+                <p>5. You will auto-join our WhatsApp channel</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn reload-btn" onclick="refreshQRCode()">
+                <i class="fas fa-redo"></i> New QR Code
+            </button>
+            <button class="action-btn home-btn" onclick="window.location.href='/'">
+                <i class="fas fa-home"></i> Home
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Created by <strong>Dulina Nethmira</strong></p>
+            <p>
+                <a href="/pair"><i class="fas fa-link"></i> Pair Code</a> | 
+                <a href="https://whatsapp.com/channel/0029Vb6mfVdEAKWH5Sgs9y2L" target="_blank">
+                    <i class="fab fa-whatsapp"></i> Join Channel
+                </a>
+            </p>
+            <p>© 2024 DTZ_NOVA_XMD - Session will auto-create after scan</p>
+        </div>
+    </div>
+
+    <!-- Font Awesome JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <script>
+        // Background Music Control
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        
+        // Try to play music automatically (with user interaction requirement)
+        document.addEventListener('click', function initializeMusic() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.volume = 0.3; // Lower volume
+                backgroundMusic.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+            }
+            document.removeEventListener('click', initializeMusic);
+        }, { once: true });
+
+        // Toggle music on button click
+        musicToggle.addEventListener('click', function() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+            } else {
+                backgroundMusic.pause();
+                musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        });
+
+        // Update music button based on playback state
+        backgroundMusic.addEventListener('play', () => {
+            musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+        });
+
+        backgroundMusic.addEventListener('pause', () => {
+            musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        });
+
+        let timeLeft = 30;
+        let timerInterval;
+        let qrRefreshInterval;
+
+        // Load QR code
+        function loadQRCode() {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            const expiredMessage = document.getElementById('expiredMessage');
+            const progressFill = document.getElementById('progressFill');
+            
+            // Reset UI
+            qrContainer.innerHTML = '<div class="loading-qr"><i class="fas fa-spinner fa-spin"></i> Loading QR Code...</div>';
+            expiredMessage.style.display = 'none';
+            progressFill.style.animation = 'none';
+            
+            // Force refresh the QR code
+            const timestamp = new Date().getTime();
+            qrContainer.innerHTML = `
+                <img src="/server?t=${timestamp}" 
+                     alt="QR Code" 
+                     onload="qrLoaded()" 
+                     onerror="qrError()">
+            `;
+            
+            // Start countdown
+            startTimer();
+            
+            // Auto-refresh after 30 seconds
+            clearInterval(qrRefreshInterval);
+            qrRefreshInterval = setTimeout(() => {
+                loadQRCode();
+            }, 31000);
+        }
+
+        function qrLoaded() {
+            console.log('QR Code loaded successfully');
+        }
+
+        function qrError() {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = `
+                <div style="color: #ff5555; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle"></i><br>
+                    Failed to load QR code<br>
+                    <button onclick="loadQRCode()" 
+                            style="margin-top: 10px; padding: 8px 15px; 
+                                   background: #ff00ff; color: white; 
+                                   border: none; border-radius: 5px; cursor: pointer;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const progressFill = document.getElementById('progressFill');
+            const expiredMessage = document.getElementById('expiredMessage');
+            
+            // Reset timer
+            timeLeft = 30;
+            timerElement.textContent = timeLeft + 's';
+            expiredMessage.style.display = 'none';
+            
+            // Reset progress bar
+            progressFill.style.animation = 'none';
+            void progressFill.offsetWidth; // Trigger reflow
+            progressFill.style.animation = 'progress 30s linear forwards';
+            
+            // Clear existing interval
+            clearInterval(timerInterval);
+            
+            // Start new interval
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft + 's';
+                
+                if (timeLeft <= 10) {
+                    timerElement.style.color = '#ff5555';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    expiredMessage.style.display = 'block';
+                    progressFill.style.animation = 'none';
+                    progressFill.style.width = '100%';
+                    progressFill.style.background = '#ff5555';
+                }
+            }, 1000);
+        }
+
+        function refreshQRCode() {
+            loadQRCode();
+        }
+
+        // Auto-refresh QR code every 30 seconds
+        function autoRefreshQR() {
+            setInterval(() => {
+                loadQRCode();
+            }, 30000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQRCode();
+            autoRefreshQR();
+        });
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                loadQRCode();
+            }
+        });
+    </script>
+</body>
+</html>

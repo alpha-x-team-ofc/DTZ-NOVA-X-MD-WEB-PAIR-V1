@@ -10,7 +10,6 @@ const {
     default: makeWASocket,
     useMultiFileAuthState,
     delay,
-    Browsers,
     makeCacheableSignalKeyStore
 } = require('baileys-dtz');
 
@@ -79,7 +78,7 @@ router.get('/', async (req, res) => {
                 },
                 printQRInTerminal: false,
                 logger: pino({ level: "fatal" }),
-                browser: Browsers.macOS("DTZ_NOVA_XMD"),
+                browser: ["Chrome", "Windows", "10.0.0"], // Fix: Use array format
                 syncFullHistory: false,
                 generateHighQualityLinkPreview: true,
                 defaultQueryTimeoutMs: 60000

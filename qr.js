@@ -6,13 +6,13 @@ const path = require('path');
 const router = express.Router();
 const pino = require("pino");
 
-// Import from elaina-baileys
+// Import from baileys-dtz
 const {
     default: makeWASocket,
     useMultiFileAuthState,
     delay,
     Browsers
-} = require("@rexxhayanasi/elaina-baileys");
+} = require("baileys-dtz");
 
 const { upload } = require('./mega');
 
@@ -529,8 +529,10 @@ function sendWSMessage(sessionId, message) {
     }
 }
 
-// Start WhatsApp session with Elaina Baileys
+// Start WhatsApp session with baileys-dtz
 async function startWhatsAppSession(sessionId, tempDir) {
+    console.log(`🚀 Starting WhatsApp session with baileys-dtz for ${sessionId}`);
+    
     try {
         const { state, saveCreds } = await useMultiFileAuthState(tempDir);
         
@@ -542,7 +544,8 @@ async function startWhatsAppSession(sessionId, tempDir) {
             syncFullHistory: false,
             markOnlineOnConnect: true,
             generateHighQualityLinkPreview: true,
-            defaultQueryTimeoutMs: 60000
+            defaultQueryTimeoutMs: 60000,
+            connectTimeoutMs: 30000
         });
         
         // Store socket in session
@@ -555,6 +558,8 @@ async function startWhatsAppSession(sessionId, tempDir) {
         
         sock.ev.on("connection.update", async (update) => {
             const { connection, lastDisconnect, qr } = update;
+            
+            console.log(`📡 Connection update: ${connection} for session ${sessionId}`);
             
             // Handle QR code
             if (qr) {
@@ -670,6 +675,13 @@ async function startWhatsAppSession(sessionId, tempDir) {
                             });
                         }
                     }
+                    
+                    // Send completion message
+                    sendWSMessage(sessionId, {
+                        type: 'status',
+                        message: '✅ Session completed! You can close this window.',
+                        color: '#00ff00'
+                    });
                     
                     // Clean up after delay
                     setTimeout(() => {

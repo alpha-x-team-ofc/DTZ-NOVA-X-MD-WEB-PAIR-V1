@@ -1,1 +1,73 @@
-
+{
+    "name": "DTZ_NOVA_XMD",
+    "description": "WhatsApp Session Generator by Dulina Nethmira - Create WhatsApp sessions using QR codes or pairing codes",
+    "repository": "https://github.com/dulinanethmira/dtz-nova-xmd",
+    "logo": "https://files.catbox.moe/fpyw9m.png",
+    "keywords": [
+        "whatsapp",
+        "bot",
+        "session",
+        "generator",
+        "qr-code",
+        "pairing",
+        "dtz-nova",
+        "dulina-nethmira",
+        "whatsapp-web",
+        "baileys"
+    ],
+    "website": "https://dtz-nova-xmd.herokuapp.com",
+    "success_url": "/",
+    "env": {
+        "PORT": {
+            "description": "Port for the web server (Heroku will set this automatically)",
+            "value": "3000",
+            "required": false
+        },
+        "MEGA_EMAIL": {
+            "description": "Your MEGA.nz email address for session storage",
+            "required": true
+        },
+        "MEGA_PASSWORD": {
+            "description": "Your MEGA.nz password for session storage",
+            "required": true
+        },
+        "NODE_ENV": {
+            "description": "Node.js environment",
+            "value": "production",
+            "required": false
+        }
+    },
+    "formation": {
+        "web": {
+            "quantity": 1,
+            "size": "free"
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        }
+    ],
+    "addons": [],
+    "stack": "heroku-22",
+    "scripts": {
+        "postdeploy": "echo 'DTZ_NOVA_XMD successfully deployed!'"
+    },
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    },
+    "image": "heroku/nodejs",
+    "environments": {
+        "test": {
+            "scripts": {
+                "test": "echo 'No tests configured'"
+            }
+        }
+    },
+    "categories": [
+        "messaging",
+        "productivity",
+        "developer-tools"
+    ]
+}

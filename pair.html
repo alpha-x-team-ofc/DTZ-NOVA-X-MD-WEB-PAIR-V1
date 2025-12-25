@@ -1,1 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTZ_NOVA_XMD - Pair Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background: url('https://files.catbox.moe/fpyw9m.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Music control (hidden but functional) */
+        .music-control {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            opacity: 0.1;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .music-control:hover {
+            opacity: 0.5;
+        }
+
+        .music-toggle {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff;
+            margin-bottom: 10px;
+            animation: logoPulse 2s infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff00ff;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #00ff00;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .box {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+            backdrop-filter: blur(10px);
+            animation: boxGlow 3s infinite alternate;
+        }
+
+        @keyframes boxGlow {
+            from { box-shadow: 0 0 30px rgba(255, 0, 255, 0.5); }
+            to { box-shadow: 0 0 40px rgba(0, 255, 0, 0.5); }
+        }
+
+        /* Rest of the CSS remains the same... */
+        .input-group {
+            margin: 25px 0;
+        }
+
+        .input-label {
+            display: block;
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .input-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 5px;
+            border: 1px solid #00ff00;
+            transition: all 0.3s;
+        }
+
+        .input-container:focus-within {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        .country-code {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px 0 0 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+
+        .phone-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .phone-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #ff00ff, #00ff00);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.7);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid #00ff00;
+            display: none;
+            animation: resultAppear 0.5s ease;
+        }
+
+        @keyframes resultAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .code-display {
+            font-size: 24px;
+            color: #ff00ff;
+            font-weight: bold;
+            margin: 10px 0;
+            word-break: break-all;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .copy-btn {
+            background: rgba(255, 0, 255, 0.2);
+            color: #ff00ff;
+            border: 1px solid #ff00ff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 0, 255, 0.4);
+        }
+
+        .message {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .message.error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff5555;
+            border: 1px solid #ff5555;
+        }
+
+        .message.success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #55ff55;
+            border: 1px solid #55ff55;
+        }
+
+        .message.info {
+            background: rgba(0, 150, 255, 0.2);
+            color: #55aaff;
+            border: 1px solid #55aaff;
+        }
+
+        .instructions {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: #ff00ff;
+            text-decoration: none;
+        }
+
+        .loading {
+            display: none;
+            color: #ffff00;
+            margin: 15px 0;
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Music (Hidden) -->
+    <div class="music-control">
+        <button class="music-toggle" id="musicToggle" title="Music Control">
+            <i class="fas fa-music"></i>
+        </button>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="https://files.catbox.moe/r674ot.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="title">DTZ_NOVA_XMD</h1>
+            <p class="subtitle">Pair Code Generator by Dulina Nethmira</p>
+        </div>
+
+        <div class="box">
+            <h2 style="color: #fff; margin-bottom: 20px;">
+                <i class="fas fa-link"></i> WhatsApp Pairing
+            </h2>
+            
+            <div class="input-group">
+                <label class="input-label">
+                    <i class="fas fa-phone"></i> Enter your WhatsApp number:
+                </label>
+                <div class="input-container">
+                    <div class="country-code">+</div>
+                    <input 
+                        type="tel" 
+                        class="phone-input" 
+                        id="phoneNumber" 
+                        placeholder="1234567890" 
+                        maxlength="15"
+                        oninput="formatPhoneNumber(this)"
+                    >
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="getPairCode()">
+                <i class="fas fa-key"></i> Generate Pair Code
+            </button>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> Generating pair code...
+            </div>
+
+            <div class="message info" id="infoMessage">
+                <i class="fas fa-info-circle"></i> Enter your WhatsApp number with country code (without +)
+            </div>
+
+            <div class="message error" id="errorMessage" style="display: none;"></div>
+
+            <div class="result-box" id="resultBox">
+                <h3 style="color: #00ff00;">
+                    <i class="fas fa-check-circle"></i> Pair Code Generated!
+                </h3>
+                <p style="color: #fff; margin: 10px 0;">Use this code in WhatsApp:</p>
+                <div class="code-display" id="pairCode">XXXX-XXXX</div>
+                <p style="color: #aaa; font-size: 12px; margin: 10px 0;">
+                    Go to WhatsApp → Linked Devices → Link a Device
+                </p>
+                <button class="copy-btn" onclick="copyCode()">
+                    <i class="fas fa-copy"></i> Copy Code
+                </button>
+            </div>
+
+            <div class="instructions">
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong></p>
+                <p>1. Enter your full phone number with country code</p>
+                <p>2. Use the code within 2 minutes</p>
+                <p>3. Keep your session code safe</p>
+                <p>4. You will auto-join our WhatsApp channel</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Created by <strong>Dulina Nethmira</strong></p>
+            <p>
+                <a href="/"><i class="fas fa-home"></i> Home</a> | 
+                <a href="/qr"><i class="fas fa-qrcode"></i> QR Code</a> | 
+                <a href="https://whatsapp.com/channel/0029Vb6mfVdEAKWH5Sgs9y2L" target="_blank">
+                    <i class="fab fa-whatsapp"></i> Our Channel
+                </a>
+            </p>
+            <p>© 2024 DTZ_NOVA_XMD - All rights reserved</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Background Music Control
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        
+        // Try to play music automatically (with user interaction requirement)
+        document.addEventListener('click', function initializeMusic() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.volume = 0.3; // Lower volume
+                backgroundMusic.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+            }
+            document.removeEventListener('click', initializeMusic);
+        }, { once: true });
+
+        // Toggle music on button click
+        musicToggle.addEventListener('click', function() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+            } else {
+                backgroundMusic.pause();
+                musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        });
+
+        // Update music button based on playback state
+        backgroundMusic.addEventListener('play', () => {
+            musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+        });
+
+        backgroundMusic.addEventListener('pause', () => {
+            musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        });
+
+        // Format phone number
+        function formatPhoneNumber(input) {
+            // Remove all non-digits
+            let value = input.value.replace(/\D/g, '');
+            
+            // Format: XXX-XXX-XXXX
+            if (value.length > 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+            } else if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 6);
+            }
+            
+            input.value = value;
+        }
+
+        async function getPairCode() {
+            const phoneInput = document.getElementById('phoneNumber');
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultBox = document.getElementById('resultBox');
+            const pairCodeElement = document.getElementById('pairCode');
+            const infoMessage = document.getElementById('infoMessage');
+            
+            // Get raw phone number (remove dashes)
+            const rawNumber = phoneInput.value.replace(/\D/g, '');
+            
+            // Validation
+            if (!rawNumber || rawNumber.length < 10) {
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please enter a valid phone number (at least 10 digits)';
+                return;
+            }
+            
+            // Show loading, hide others
+            loading.style.display = 'block';
+            errorMessage.style.display = 'none';
+            infoMessage.style.display = 'none';
+            resultBox.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            try {
+                // Make API request
+                const response = await axios.get(`/code?number=${rawNumber}`);
+                
+                if (response.data.error) {
+                    throw new Error(response.data.message);
+                }
+                
+                // Display the pair code
+                const pairCode = response.data.code;
+                pairCodeElement.textContent = pairCode;
+                
+                // Show result box
+                loading.style.display = 'none';
+                resultBox.style.display = 'block';
+                
+                // Show success message
+                errorMessage.style.display = 'block';
+                errorMessage.className = 'message success';
+                errorMessage.innerHTML = `<i class="fas fa-check-circle"></i> Code generated successfully! Expires in 2 minutes.`;
+                
+            } catch (error) {
+                // Show error
+                loading.style.display = 'none';
+                errorMessage.style.display = 'block';
+                errorMessage.className = 'message error';
+                errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+            } finally {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-key"></i> Generate Pair Code';
+            }
+        }
+
+        async function copyCode() {
+            const code = document.getElementById('pairCode').textContent;
+            const copyBtn = document.querySelector('.copy-btn');
+            
+            try {
+                await navigator.clipboard.writeText(code);
+                
+                // Show copied feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                copyBtn.style.background = 'rgba(0, 255, 0, 0.3)';
+                copyBtn.style.color = '#00ff00';
+                copyBtn.style.borderColor = '#00ff00';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '';
+                    copyBtn.style.color = '';
+                    copyBtn.style.borderColor = '';
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy: ' + err);
+            }
+        }
+
+        // Enter key support
+        document.getElementById('phoneNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getPairCode();
+            }
+        });
+
+        // Auto-focus on input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('phoneNumber').focus();
+        });
+    </script>
+</body>
+</html>

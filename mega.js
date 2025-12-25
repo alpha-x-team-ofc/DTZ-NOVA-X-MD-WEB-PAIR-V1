@@ -1,8 +1,8 @@
 const mega = require("megajs");
 
 // Use environment variables for security
-let email = process.env.MEGA_EMAIL || '';
-let pw = process.env.MEGA_PASSWORD || '';
+let email = process.env.MEGA_EMAIL || 'camalkaakash2@gmail.com';
+let pw = process.env.MEGA_PASSWORD || 'dulina2011@##DULA-MD';
 
 const auth = {
     'email': email,

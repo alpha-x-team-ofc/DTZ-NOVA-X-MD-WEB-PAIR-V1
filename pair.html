@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DTZ_NOVA_XMD - Pair Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.6.6/css/flag-icons.min.css">
     <style>
         * {
             margin: 0;
@@ -108,7 +109,6 @@
             to { box-shadow: 0 0 40px rgba(0, 255, 0, 0.5); }
         }
 
-        /* Rest of the CSS remains the same... */
         .input-group {
             margin: 25px 0;
         }
@@ -121,40 +121,155 @@
             font-size: 14px;
         }
 
-        .input-container {
+        .phone-input-container {
             display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 5px;
-            border: 1px solid #00ff00;
-            transition: all 0.3s;
+            gap: 10px;
         }
 
-        .input-container:focus-within {
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px #ff00ff;
+        .country-code-selector {
+            position: relative;
+            width: 120px;
         }
 
-        .country-code {
+        .country-code-btn {
+            width: 100%;
             background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 10px 0 0 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s;
             font-weight: bold;
+        }
+
+        .country-code-btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+            border-color: #ff00ff;
+        }
+
+        .country-code-btn span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .country-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .country-dropdown.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .country-search {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .country-search input {
+            width: 100%;
+            padding: 8px;
+            background: transparent;
+            border: 1px solid #ff00ff;
+            border-radius: 5px;
+            color: white;
+            outline: none;
+        }
+
+        .country-search input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .country-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .country-item {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .country-item:hover {
+            background: rgba(255, 0, 255, 0.2);
+        }
+
+        .country-item.active {
+            background: rgba(0, 255, 0, 0.2);
+            border-left: 3px solid #ff00ff;
+        }
+
+        .country-flag {
+            font-size: 20px;
+            border-radius: 3px;
+            width: 30px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 80px;
+            overflow: hidden;
+        }
+
+        .country-name {
+            flex: 1;
+            color: white;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .country-code {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .phone-input-wrapper {
+            flex: 1;
         }
 
         .phone-input {
-            flex: 1;
-            background: transparent;
-            border: none;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
             padding: 15px;
-            color: #fff;
+            color: white;
             font-size: 16px;
             outline: none;
+            transition: all 0.3s;
+        }
+
+        .phone-input:focus {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
         }
 
         .phone-input::placeholder {
@@ -174,6 +289,7 @@
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-top: 10px;
         }
 
         .submit-btn:hover {
@@ -183,6 +299,12 @@
 
         .submit-btn:active {
             transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .result-box {
@@ -207,6 +329,10 @@
             margin: 10px 0;
             word-break: break-all;
             text-shadow: 0 0 10px #ff00ff;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ff00ff;
         }
 
         .copy-btn {
@@ -222,6 +348,10 @@
 
         .copy-btn:hover {
             background: rgba(255, 0, 255, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
         }
 
         .message {
@@ -284,6 +414,25 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+
+        /* Scrollbar Styling */
+        .country-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .country-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .country-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #ff00ff, #00ff00);
+            border-radius: 4px;
+        }
+
+        .country-list::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #ff00ff, #00ff00);
+        }
     </style>
 </head>
 <body>
@@ -318,16 +467,36 @@
                 <label class="input-label">
                     <i class="fas fa-phone"></i> Enter your WhatsApp number:
                 </label>
-                <div class="input-container">
-                    <div class="country-code">+</div>
-                    <input 
-                        type="tel" 
-                        class="phone-input" 
-                        id="phoneNumber" 
-                        placeholder="1234567890" 
-                        maxlength="15"
-                        oninput="formatPhoneNumber(this)"
-                    >
+                <div class="phone-input-container">
+                    <!-- Country Code Selector -->
+                    <div class="country-code-selector">
+                        <button class="country-code-btn" id="countryCodeBtn" type="button">
+                            <span id="selectedCountry">
+                                <span class="fi fi-us" id="selectedFlag"></span>
+                                <span id="selectedCode">+1</span>
+                            </span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="country-dropdown" id="countryDropdown">
+                            <div class="country-search">
+                                <input type="text" id="countrySearch" placeholder="Search country..." autocomplete="off">
+                            </div>
+                            <div class="country-list" id="countryList">
+                                <!-- Countries will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phone Number Input -->
+                    <div class="phone-input-wrapper">
+                        <input 
+                            type="tel" 
+                            class="phone-input" 
+                            id="phoneNumber" 
+                            placeholder="Phone number without country code"
+                            autocomplete="off"
+                        >
+                    </div>
                 </div>
             </div>
 
@@ -340,7 +509,7 @@
             </div>
 
             <div class="message info" id="infoMessage">
-                <i class="fas fa-info-circle"></i> Enter your WhatsApp number with country code (without +)
+                <i class="fas fa-info-circle"></i> Select your country code and enter your phone number
             </div>
 
             <div class="message error" id="errorMessage" style="display: none;"></div>
@@ -361,10 +530,11 @@
 
             <div class="instructions">
                 <p><i class="fas fa-exclamation-triangle"></i> <strong>Important:</strong></p>
-                <p>1. Enter your full phone number with country code</p>
-                <p>2. Use the code within 2 minutes</p>
-                <p>3. Keep your session code safe</p>
-                <p>4. You will auto-join our WhatsApp channel</p>
+                <p>1. Select your country from the dropdown</p>
+                <p>2. Enter your phone number without country code</p>
+                <p>3. Use the code within 2 minutes</p>
+                <p>4. Keep your session code safe</p>
+                <p>5. You will auto-join our WhatsApp channel</p>
             </div>
         </div>
 
@@ -418,39 +588,271 @@
             musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
         });
 
-        // Format phone number
-        function formatPhoneNumber(input) {
-            // Remove all non-digits
-            let value = input.value.replace(/\D/g, '');
+        // Country Data (Comprehensive list of countries with codes)
+        const countries = [
+            { name: "United States", code: "+1", iso: "us", flag: "fi-us" },
+            { name: "United Kingdom", code: "+44", iso: "gb", flag: "fi-gb" },
+            { name: "Canada", code: "+1", iso: "ca", flag: "fi-ca" },
+            { name: "Australia", code: "+61", iso: "au", flag: "fi-au" },
+            { name: "India", code: "+91", iso: "in", flag: "fi-in" },
+            { name: "Sri Lanka", code: "+94", iso: "lk", flag: "fi-lk" },
+            { name: "Pakistan", code: "+92", iso: "pk", flag: "fi-pk" },
+            { name: "Bangladesh", code: "+880", iso: "bd", flag: "fi-bd" },
+            { name: "Nepal", code: "+977", iso: "np", flag: "fi-np" },
+            { name: "Afghanistan", code: "+93", iso: "af", flag: "fi-af" },
+            { name: "Germany", code: "+49", iso: "de", flag: "fi-de" },
+            { name: "France", code: "+33", iso: "fr", flag: "fi-fr" },
+            { name: "Italy", code: "+39", iso: "it", flag: "fi-it" },
+            { name: "Spain", code: "+34", iso: "es", flag: "fi-es" },
+            { name: "Portugal", code: "+351", iso: "pt", flag: "fi-pt" },
+            { name: "Netherlands", code: "+31", iso: "nl", flag: "fi-nl" },
+            { name: "Belgium", code: "+32", iso: "be", flag: "fi-be" },
+            { name: "Switzerland", code: "+41", iso: "ch", flag: "fi-ch" },
+            { name: "Sweden", code: "+46", iso: "se", flag: "fi-se" },
+            { name: "Norway", code: "+47", iso: "no", flag: "fi-no" },
+            { name: "Denmark", code: "+45", iso: "dk", flag: "fi-dk" },
+            { name: "Finland", code: "+358", iso: "fi", flag: "fi-fi" },
+            { name: "Russia", code: "+7", iso: "ru", flag: "fi-ru" },
+            { name: "Ukraine", code: "+380", iso: "ua", flag: "fi-ua" },
+            { name: "Poland", code: "+48", iso: "pl", flag: "fi-pl" },
+            { name: "Czech Republic", code: "+420", iso: "cz", flag: "fi-cz" },
+            { name: "Slovakia", code: "+421", iso: "sk", flag: "fi-sk" },
+            { name: "Hungary", code: "+36", iso: "hu", flag: "fi-hu" },
+            { name: "Romania", code: "+40", iso: "ro", flag: "fi-ro" },
+            { name: "Bulgaria", code: "+359", iso: "bg", flag: "fi-bg" },
+            { name: "Greece", code: "+30", iso: "gr", flag: "fi-gr" },
+            { name: "Turkey", code: "+90", iso: "tr", flag: "fi-tr" },
+            { name: "Egypt", code: "+20", iso: "eg", flag: "fi-eg" },
+            { name: "Saudi Arabia", code: "+966", iso: "sa", flag: "fi-sa" },
+            { name: "United Arab Emirates", code: "+971", iso: "ae", flag: "fi-ae" },
+            { name: "Qatar", code: "+974", iso: "qa", flag: "fi-qa" },
+            { name: "Kuwait", code: "+965", iso: "kw", flag: "fi-kw" },
+            { name: "Bahrain", code: "+973", iso: "bh", flag: "fi-bh" },
+            { name: "Oman", code: "+968", iso: "om", flag: "fi-om" },
+            { name: "Jordan", code: "+962", iso: "jo", flag: "fi-jo" },
+            { name: "Lebanon", code: "+961", iso: "lb", flag: "fi-lb" },
+            { name: "Syria", code: "+963", iso: "sy", flag: "fi-sy" },
+            { name: "Iraq", code: "+964", iso: "iq", flag: "fi-iq" },
+            { name: "Iran", code: "+98", iso: "ir", flag: "fi-ir" },
+            { name: "Israel", code: "+972", iso: "il", flag: "fi-il" },
+            { name: "China", code: "+86", iso: "cn", flag: "fi-cn" },
+            { name: "Japan", code: "+81", iso: "jp", flag: "fi-jp" },
+            { name: "South Korea", code: "+82", iso: "kr", flag: "fi-kr" },
+            { name: "North Korea", code: "+850", iso: "kp", flag: "fi-kp" },
+            { name: "Taiwan", code: "+886", iso: "tw", flag: "fi-tw" },
+            { name: "Hong Kong", code: "+852", iso: "hk", flag: "fi-hk" },
+            { name: "Macau", code: "+853", iso: "mo", flag: "fi-mo" },
+            { name: "Mongolia", code: "+976", iso: "mn", flag: "fi-mn" },
+            { name: "Vietnam", code: "+84", iso: "vn", flag: "fi-vn" },
+            { name: "Thailand", code: "+66", iso: "th", flag: "fi-th" },
+            { name: "Malaysia", code: "+60", iso: "my", flag: "fi-my" },
+            { name: "Singapore", code: "+65", iso: "sg", flag: "fi-sg" },
+            { name: "Indonesia", code: "+62", iso: "id", flag: "fi-id" },
+            { name: "Philippines", code: "+63", iso: "ph", flag: "fi-ph" },
+            { name: "Brunei", code: "+673", iso: "bn", flag: "fi-bn" },
+            { name: "Cambodia", code: "+855", iso: "kh", flag: "fi-kh" },
+            { name: "Laos", code: "+856", iso: "la", flag: "fi-la" },
+            { name: "Myanmar", code: "+95", iso: "mm", flag: "fi-mm" },
+            { name: "Brazil", code: "+55", iso: "br", flag: "fi-br" },
+            { name: "Argentina", code: "+54", iso: "ar", flag: "fi-ar" },
+            { name: "Chile", code: "+56", iso: "cl", flag: "fi-cl" },
+            { name: "Colombia", code: "+57", iso: "co", flag: "fi-co" },
+            { name: "Peru", code: "+51", iso: "pe", flag: "fi-pe" },
+            { name: "Venezuela", code: "+58", iso: "ve", flag: "fi-ve" },
+            { name: "Mexico", code: "+52", iso: "mx", flag: "fi-mx" },
+            { name: "Cuba", code: "+53", iso: "cu", flag: "fi-cu" },
+            { name: "Dominican Republic", code: "+1", iso: "do", flag: "fi-do" },
+            { name: "Puerto Rico", code: "+1", iso: "pr", flag: "fi-pr" },
+            { name: "Jamaica", code: "+1", iso: "jm", flag: "fi-jm" },
+            { name: "Haiti", code: "+509", iso: "ht", flag: "fi-ht" },
+            { name: "Bahamas", code: "+1", iso: "bs", flag: "fi-bs" },
+            { name: "Trinidad and Tobago", code: "+1", iso: "tt", flag: "fi-tt" },
+            { name: "Barbados", code: "+1", iso: "bb", flag: "fi-bb" },
+            { name: "South Africa", code: "+27", iso: "za", flag: "fi-za" },
+            { name: "Nigeria", code: "+234", iso: "ng", flag: "fi-ng" },
+            { name: "Ghana", code: "+233", iso: "gh", flag: "fi-gh" },
+            { name: "Kenya", code: "+254", iso: "ke", flag: "fi-ke" },
+            { name: "Ethiopia", code: "+251", iso: "et", flag: "fi-et" },
+            { name: "Egypt", code: "+20", iso: "eg", flag: "fi-eg" },
+            { name: "Morocco", code: "+212", iso: "ma", flag: "fi-ma" },
+            { name: "Algeria", code: "+213", iso: "dz", flag: "fi-dz" },
+            { name: "Tunisia", code: "+216", iso: "tn", flag: "fi-tn" },
+            { name: "Libya", code: "+218", iso: "ly", flag: "fi-ly" },
+            { name: "Sudan", code: "+249", iso: "sd", flag: "fi-sd" },
+            { name: "Somalia", code: "+252", iso: "so", flag: "fi-so" },
+            { name: "Djibouti", code: "+253", iso: "dj", flag: "fi-dj" },
+            { name: "Comoros", code: "+269", iso: "km", flag: "fi-km" },
+            { name: "Madagascar", code: "+261", iso: "mg", flag: "fi-mg" },
+            { name: "Mauritius", code: "+230", iso: "mu", flag: "fi-mu" },
+            { name: "Seychelles", code: "+248", iso: "sc", flag: "fi-sc" },
+            { name: "Maldives", code: "+960", iso: "mv", flag: "fi-mv" },
+            { name: "New Zealand", code: "+64", iso: "nz", flag: "fi-nz" },
+            { name: "Fiji", code: "+679", iso: "fj", flag: "fi-fj" },
+            { name: "Papua New Guinea", code: "+675", iso: "pg", flag: "fi-pg" },
+            { name: "Solomon Islands", code: "+677", iso: "sb", flag: "fi-sb" },
+            { name: "Vanuatu", code: "+678", iso: "vu", flag: "fi-vu" },
+            { name: "Samoa", code: "+685", iso: "ws", flag: "fi-ws" },
+            { name: "Tonga", code: "+676", iso: "to", flag: "fi-to" }
+        ];
+
+        // Current selected country
+        let selectedCountry = {
+            name: "United States",
+            code: "+1",
+            iso: "us",
+            flag: "fi-us"
+        };
+
+        // DOM Elements
+        const countryCodeBtn = document.getElementById('countryCodeBtn');
+        const countryDropdown = document.getElementById('countryDropdown');
+        const countrySearch = document.getElementById('countrySearch');
+        const countryList = document.getElementById('countryList');
+        const selectedFlag = document.getElementById('selectedFlag');
+        const selectedCode = document.getElementById('selectedCode');
+        const phoneInput = document.getElementById('phoneNumber');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultBox = document.getElementById('resultBox');
+        const pairCodeElement = document.getElementById('pairCode');
+        const infoMessage = document.getElementById('infoMessage');
+
+        // Initialize country list
+        function initializeCountryList() {
+            countryList.innerHTML = '';
             
-            // Format: XXX-XXX-XXXX
-            if (value.length > 6) {
-                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
-            } else if (value.length > 3) {
-                value = value.slice(0, 3) + '-' + value.slice(3, 6);
-            }
+            countries.forEach(country => {
+                const countryItem = document.createElement('div');
+                countryItem.className = 'country-item';
+                countryItem.innerHTML = `
+                    <div class="country-flag">
+                        <span class="${country.flag}"></span>
+                    </div>
+                    <div class="country-name">${country.name}</div>
+                    <div class="country-code">${country.code}</div>
+                `;
+                
+                countryItem.addEventListener('click', () => {
+                    selectCountry(country);
+                });
+                
+                countryList.appendChild(countryItem);
+            });
             
-            input.value = value;
+            // Set default country
+            selectCountry(selectedCountry);
         }
 
+        // Select a country
+        function selectCountry(country) {
+            selectedCountry = country;
+            selectedFlag.className = country.flag;
+            selectedCode.textContent = country.code;
+            
+            // Update active state
+            const items = countryList.querySelectorAll('.country-item');
+            items.forEach(item => {
+                const name = item.querySelector('.country-name').textContent;
+                if (name === country.name) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Close dropdown
+            countryDropdown.classList.remove('show');
+            
+            // Focus on phone input
+            phoneInput.focus();
+        }
+
+        // Filter countries based on search
+        function filterCountries() {
+            const searchTerm = countrySearch.value.toLowerCase();
+            const items = countryList.querySelectorAll('.country-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.country-name').textContent.toLowerCase();
+                const code = item.querySelector('.country-code').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || code.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle country dropdown
+        function toggleCountryDropdown() {
+            countryDropdown.classList.toggle('show');
+            if (countryDropdown.classList.contains('show')) {
+                countrySearch.focus();
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!countryCodeBtn.contains(e.target) && !countryDropdown.contains(e.target)) {
+                countryDropdown.classList.remove('show');
+            }
+        });
+
+        // Event Listeners
+        countryCodeBtn.addEventListener('click', toggleCountryDropdown);
+        countrySearch.addEventListener('input', filterCountries);
+
+        // Format phone number input
+        phoneInput.addEventListener('input', function(e) {
+            // Remove non-digits
+            let value = this.value.replace(/\D/g, '');
+            
+            // Limit to 15 digits
+            if (value.length > 15) {
+                value = value.substring(0, 15);
+            }
+            
+            this.value = value;
+        });
+
+        // Get full phone number
+        function getFullPhoneNumber() {
+            const phoneNumber = phoneInput.value.replace(/\D/g, '');
+            const countryCode = selectedCountry.code.replace('+', '');
+            return countryCode + phoneNumber;
+        }
+
+        // Validate phone number
+        function validatePhoneNumber() {
+            const phoneNumber = phoneInput.value.replace(/\D/g, '');
+            
+            if (!phoneNumber) {
+                return { valid: false, message: "Please enter your phone number" };
+            }
+            
+            if (phoneNumber.length < 7) {
+                return { valid: false, message: "Phone number is too short" };
+            }
+            
+            if (phoneNumber.length > 15) {
+                return { valid: false, message: "Phone number is too long" };
+            }
+            
+            return { valid: true, message: "" };
+        }
+
+        // Generate pair code
         async function getPairCode() {
-            const phoneInput = document.getElementById('phoneNumber');
-            const submitBtn = document.getElementById('submitBtn');
-            const loading = document.getElementById('loading');
-            const errorMessage = document.getElementById('errorMessage');
-            const resultBox = document.getElementById('resultBox');
-            const pairCodeElement = document.getElementById('pairCode');
-            const infoMessage = document.getElementById('infoMessage');
+            const validation = validatePhoneNumber();
             
-            // Get raw phone number (remove dashes)
-            const rawNumber = phoneInput.value.replace(/\D/g, '');
-            
-            // Validation
-            if (!rawNumber || rawNumber.length < 10) {
-                errorMessage.style.display = 'block';
-                errorMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please enter a valid phone number (at least 10 digits)';
+            if (!validation.valid) {
+                showError(validation.message);
                 return;
             }
+            
+            const fullNumber = getFullPhoneNumber();
             
             // Show loading, hide others
             loading.style.display = 'block';
@@ -462,7 +864,7 @@
             
             try {
                 // Make API request
-                const response = await axios.get(`/code?number=${rawNumber}`);
+                const response = await axios.get(`/code?number=${fullNumber}`);
                 
                 if (response.data.error) {
                     throw new Error(response.data.message);
@@ -477,16 +879,17 @@
                 resultBox.style.display = 'block';
                 
                 // Show success message
-                errorMessage.style.display = 'block';
-                errorMessage.className = 'message success';
-                errorMessage.innerHTML = `<i class="fas fa-check-circle"></i> Code generated successfully! Expires in 2 minutes.`;
+                showSuccess(`Code generated successfully! Expires in 2 minutes.`);
+                
+                // Auto-copy to clipboard
+                setTimeout(() => {
+                    copyCode();
+                }, 500);
                 
             } catch (error) {
                 // Show error
                 loading.style.display = 'none';
-                errorMessage.style.display = 'block';
-                errorMessage.className = 'message error';
-                errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+                showError(`Error: ${error.message}`);
             } finally {
                 // Reset button
                 submitBtn.disabled = false;
@@ -494,8 +897,23 @@
             }
         }
 
+        // Show error message
+        function showError(message) {
+            errorMessage.style.display = 'block';
+            errorMessage.className = 'message error';
+            errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            errorMessage.style.display = 'block';
+            errorMessage.className = 'message success';
+            errorMessage.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        }
+
+        // Copy code to clipboard
         async function copyCode() {
-            const code = document.getElementById('pairCode').textContent;
+            const code = pairCodeElement.textContent;
             const copyBtn = document.querySelector('.copy-btn');
             
             try {
@@ -516,20 +934,31 @@
                     copyBtn.style.borderColor = '';
                 }, 2000);
             } catch (err) {
-                alert('Failed to copy: ' + err);
+                showError('Failed to copy: ' + err);
             }
         }
 
         // Enter key support
-        document.getElementById('phoneNumber').addEventListener('keypress', function(e) {
+        phoneInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 getPairCode();
             }
         });
 
-        // Auto-focus on input
+        // Country search enter key
+        countrySearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const firstVisible = countryList.querySelector('.country-item[style="display: flex;"]');
+                if (firstVisible) {
+                    firstVisible.click();
+                }
+            }
+        });
+
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('phoneNumber').focus();
+            initializeCountryList();
+            phoneInput.focus();
         });
     </script>
 </body>

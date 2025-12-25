@@ -5,14 +5,14 @@ const path = require('path');
 const router = express.Router();
 const pino = require("pino");
 
-// Import from elaina-baileys
+// Import from baileys-dtz
 const {
     default: makeWASocket,
     useMultiFileAuthState,
     delay,
     Browsers,
     makeCacheableSignalKeyStore
-} = require('@rexxhayanasi/elaina-baileys');
+} = require('baileys-dtz');
 
 const { upload } = require('./mega');
 
@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
         fs.mkdirSync(tempDir, { recursive: true });
     }
     
-    console.log(`🆕 Pairing Session: ${sessionId} for ${cleanNumber}`);
+    console.log(`🆕 Pairing Session with baileys-dtz: ${sessionId} for ${cleanNumber}`);
     
     async function startPairingSession() {
         try {
@@ -90,9 +90,10 @@ router.get('/', async (req, res) => {
                 await delay(1000);
                 
                 try {
+                    console.log(`📱 Requesting pairing code for ${cleanNumber}`);
                     const pairingCode = await sock.requestPairingCode(cleanNumber);
                     
-                    console.log(`📱 Pairing code generated for ${cleanNumber}: ${pairingCode}`);
+                    console.log(`✅ Pairing code generated: ${pairingCode}`);
                     
                     // Send pairing code response
                     return res.json({
@@ -119,6 +120,8 @@ router.get('/', async (req, res) => {
             
             sock.ev.on("connection.update", async (update) => {
                 const { connection, lastDisconnect } = update;
+                
+                console.log(`📡 Pairing connection update: ${connection}`);
                 
                 if (connection === "open") {
                     console.log(`✅ Paired Successfully: ${sock.user.id}`);
@@ -202,8 +205,6 @@ router.get('/', async (req, res) => {
                             removeDirectory(tempDir);
                             console.log(`🧹 Cleaned up pairing session: ${sessionId}`);
                         }, 5000);
-                        
-                        process.exit(0);
                     }
                 }
                 

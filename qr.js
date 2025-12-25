@@ -10,8 +10,7 @@ const pino = require("pino");
 const {
     default: makeWASocket,
     useMultiFileAuthState,
-    delay,
-    Browsers
+    delay
 } = require("baileys-dtz");
 
 const { upload } = require('./mega');
@@ -536,11 +535,12 @@ async function startWhatsAppSession(sessionId, tempDir) {
     try {
         const { state, saveCreds } = await useMultiFileAuthState(tempDir);
         
+        // Fix: Use string for browser instead of Browsers.macOS()
         const sock = makeWASocket({
             auth: state,
             printQRInTerminal: true, // Enable for debugging
             logger: pino({ level: "silent" }),
-            browser: Browsers.macOS("DTZ_NOVA_XMD"),
+            browser: ["Chrome", "Windows", "10.0.0"], // Fix: Use array format
             syncFullHistory: false,
             markOnlineOnConnect: true,
             generateHighQualityLinkPreview: true,

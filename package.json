@@ -1,15 +1,20 @@
 {
-    "name": "dtz-nova-session",
-    "version": "1.0.0",
+    "name": "dtz-nova-xmd-session",
+    "version": "2.0.0",
     "description": "DTZ_NOVA_XMD WhatsApp Session Generator by Dulina Nethmira",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
         "dev": "nodemon index.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "setup": "npm install && mkdir -p temp logs",
+        "clean": "rm -rf node_modules package-lock.json",
+        "reset": "npm run clean && npm install && rm -rf temp/*"
     },
+    "keywords": ["whatsapp", "bot", "session", "generator", "dtz-nova", "dulina-nethmira"],
+    "author": "Dulina Nethmira",
+    "license": "MIT",
     "dependencies": {
-        "@whiskeysockets/baileys": "^6.7.17",
+        "@rexxhayanasi/elaina-baileys": "^1.0.12",
         "@adiwajshing/keyed-db": "^0.2.4",
         "qrcode": "^1.5.3",
         "awesome-phonenumber": "^2.64.0",
@@ -20,11 +25,15 @@
         "path": "^0.12.7",
         "megajs": "^1.1.7",
         "async-mutex": "^0.4.1",
-        "axios": "^1.6.0"
+        "axios": "^1.6.0",
+        "ws": "^8.14.0",
+        "dotenv": "^16.3.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.0"
     },
     "engines": {
-        "node": ">=16.0.0"
-    },
-    "author": "Dulina Nethmira",
-    "license": "MIT"
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    }
 }
